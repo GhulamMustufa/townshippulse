@@ -254,7 +254,7 @@ export default function WhatsAppSimulator() {
               onClick={() =>
                 handleSend(
                   "Longkang tersumbat dekat simpang Elmina Green 1, air dah mula melimpah naik ke jalan.",
-                  "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80"
+                  "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80"
                 )
               }
               className="bg-[#202c33] hover:bg-[#2a3942] text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full whitespace-nowrap active:scale-95 transition"

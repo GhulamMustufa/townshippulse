@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         image_url:
           image_data && image_data.startsWith("http")
             ? image_data
-            : "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80",
+            : "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80",
         text: text_description,
         reporter_name,
         contact_number,

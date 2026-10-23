@@ -45,7 +45,7 @@ const PRESET_SCENARIOS_BM: PresetScenario[] = [
     lat: 3.2032,
     lng: 101.5125,
     text: "Longkang besar sumbat dekat simpang Elmina Green 1, air dah mula melimpah naik ke jalan raya.",
-    imageUrl: "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80",
   },
   {
     title: "Jalan Berlubang Bahaya",
@@ -88,7 +88,7 @@ const PRESET_SCENARIOS_EN: PresetScenario[] = [
     lat: 3.2032,
     lng: 101.5125,
     text: "Severe drainage clog at Elmina Green 1 junction, water overflowing onto main roadway during heavy rain.",
-    imageUrl: "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80",
   },
   {
     title: "Dangerous Road Pothole",
@@ -147,7 +147,7 @@ export default function ResidentReportPage() {
     "Longkang besar sumbat dekat simpang Elmina Green 1, air dah mula melimpah naik ke jalan raya."
   );
   const [imagePreview, setImagePreview] = useState<string>(
-    "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80"
+    "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80"
   );
   const [reporterName, setReporterName] = useState("Faizal Rahman");
   const [contactNumber, setContactNumber] = useState("+6012-3849120");
@@ -666,7 +666,14 @@ function deduplicatePhrases(text: string): string {
                 {/* PREVIEW CONTAINER */}
                 <div className="relative rounded-xl overflow-hidden border border-slate-800 h-44 bg-slate-950 flex flex-col items-center justify-center group mb-2">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Defect Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt="Defect Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/sample_images/01_clogged_drain.jpg";
+                      }}
+                    />
                   ) : (
                     <div className="text-center text-slate-500 text-xs p-4 flex flex-col items-center gap-2">
                       <ImageIcon className="w-8 h-8 text-slate-600" />
