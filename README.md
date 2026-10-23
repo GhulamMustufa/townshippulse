@@ -7,6 +7,7 @@
 
 [![Live Production](https://img.shields.io/badge/Live%20Production-townshippulse.vercel.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://townshippulse.vercel.app)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-GhulamMustufa%2Ftownshippulse-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/GhulamMustufa/townshippulse)
+[![OpenAI GPT-4o-mini](https://img.shields.io/badge/AI%20Vision-OpenAI%20GPT--4o--mini-412991?style=for-the-badge&logo=openai&logoColor=white)](https://platform.openai.com)
 [![Neon DB](https://img.shields.io/badge/Neon-Serverless%20PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech)
 
 * **🌐 Live Production Dashboard:** [https://townshippulse.vercel.app](https://townshippulse.vercel.app)
@@ -20,7 +21,7 @@
 **TownshipPulse** is an Autonomous Infrastructure & Operations Copilot engineered specifically for Sime Darby Property master-planned townships. It replaces the traditional **72-hour operational lag** of citizen reporting and contractor quotation with a **4-second autonomous multi-agent pipeline**.
 
 Residents report defects (blocked monsoon drains, burst water pipes, deep potholes, fallen trees) via **WhatsApp** or a zero-download **Web PWA** in Bahasa Melayu or English. Within 4 seconds, our autonomous agent pipeline:
-1. **Verifies the defect** with multimodal computer vision (Gemini 1.5 Flash).
+1. **Verifies the defect** with multimodal computer vision (OpenAI GPT-4o-mini / Gemini Flash).
 2. **Suppresses duplicates within 50 meters** (Haversine spatial clustering), saving RM 400+ per duplicate contractor callout.
 3. **Correlates with live satellite weather** (Open-Meteo), auto-escalating blocked drains to **CRITICAL** when rainfall >30mm/h is forecast.
 4. **Auto-calculates repair costs** using the official Malaysian Public Works Department (**JKR Schedule of Rates 2026**).

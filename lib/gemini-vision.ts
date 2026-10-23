@@ -13,29 +13,8 @@ export interface VisionInspectionResult {
   summary_english: string;
 }
 
-/**
- * Tool 1: inspect_defect_vision()
- * Analyzes uploaded defect photo using Gemini 1.5 Flash multimodal vision.
- * Validates authenticity, identifies category, and scores severity (1-10).
- */
-export async function inspectDefectVision(
-  imageDataOrUrl?: string,
-  userDescription: string = ""
-): Promise<VisionInspectionResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (apiKey) {
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        generationConfig: { responseMimeType: "application/json" },
-      });
-
-      const prompt = `You are TownshipPulse, an autonomous municipal defect inspection vision agent for Sime Darby Property townships (City of Elmina and Bandar Bukit Raja, Malaysia).
-Analyze this defect report. Description from resident: "${userDescription}".
-
-Respond ONLY with valid JSON with this exact schema:
+const INSPECTION_PROMPT_SCHEMA = `You are TownshipPulse, an autonomous municipal defect inspection vision agent for Sime Darby Property townships (City of Elmina and Bandar Bukit Raja, Malaysia).
+Analyze this defect report. Respond ONLY with valid JSON with this exact schema:
 {
   "category": "DRAINAGE_AND_FLOOD_PREVENTION" | "ROAD_AND_PAVEMENT" | "STREETLIGHTING_AND_ELECTRICAL" | "WATER_RETICULATION_AND_PLUMBING" | "LANDSCAPING_AND_PARKS" | "OTHER",
   "defect_type": string (short code e.g. "HEAVY_SILT_AND_DEBRIS_BLOCKAGE", "ROAD_POTHOLE_HAZARD", "BURST_RETICULATION_PIPE", "NON_FUNCTIONAL_STREETLIGHT"),
@@ -48,38 +27,153 @@ Respond ONLY with valid JSON with this exact schema:
   "summary_english": string (1 concise professional sentence for contractor work order)
 }`;
 
-      // If we have base64 image data
-      if (imageDataOrUrl && imageDataOrUrl.startsWith("data:image")) {
-        const matches = imageDataOrUrl.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
-        if (matches) {
-          const mimeType = matches[1];
-          const base64Data = matches[2];
+/**
+ * Call OpenAI GPT-4o-mini for multimodal visual inspection & defect triage
+ */
+async function callOpenAIVision(
+  apiKey: string,
+  imageDataOrUrl?: string,
+  userDescription: string = ""
+): Promise<VisionInspectionResult> {
+  const userContent: any[] = [
+    {
+      type: "text",
+      text: `${INSPECTION_PROMPT_SCHEMA}\n\nResident Description: "${userDescription || "Physical infrastructure defect photographed by resident"}"`,
+    },
+  ];
 
-          const result = await model.generateContent([
-            prompt,
-            {
-              inlineData: {
-                data: base64Data,
-                mimeType,
-              },
-            },
-          ]);
-
-          const parsed = JSON.parse(result.response.text());
-          return parsed as VisionInspectionResult;
-        }
-      }
-
-      // If text-only or remote URL
-      const result = await model.generateContent(prompt + `\nImage reference: ${imageDataOrUrl || "N/A"}`);
-      const parsed = JSON.parse(result.response.text());
-      return parsed as VisionInspectionResult;
-    } catch (err) {
-      console.warn("Gemini 1.5 Flash call failed or timed out. Falling back to local inspection engine:", err);
+  if (imageDataOrUrl) {
+    if (imageDataOrUrl.startsWith("data:image") || imageDataOrUrl.startsWith("http")) {
+      userContent.push({
+        type: "image_url",
+        image_url: {
+          url: imageDataOrUrl,
+          detail: "low",
+        },
+      });
     }
   }
 
-  // Smart Heuristic Fallback (Guaranteeing 100% offline & venue reliability)
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: "You are TownshipPulse autonomous municipal inspection AI. Output JSON only.",
+        },
+        {
+          role: "user",
+          content: userContent,
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 500,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`OpenAI API responded with status ${response.status}: ${errorBody}`);
+  }
+
+  const data = await response.json();
+  const rawText = data.choices?.[0]?.message?.content;
+  if (!rawText) {
+    throw new Error("No completion content received from OpenAI");
+  }
+
+  const parsed = JSON.parse(rawText);
+  return parsed as VisionInspectionResult;
+}
+
+/**
+ * Call Google Gemini 1.5 Flash for multimodal visual inspection
+ */
+async function callGeminiVision(
+  apiKey: string,
+  imageDataOrUrl?: string,
+  userDescription: string = ""
+): Promise<VisionInspectionResult> {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const prompt = `${INSPECTION_PROMPT_SCHEMA}\nResident Description: "${userDescription}"`;
+
+  // If base64 data
+  if (imageDataOrUrl && imageDataOrUrl.startsWith("data:image")) {
+    const matches = imageDataOrUrl.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+    if (matches) {
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+
+      const result = await model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType,
+          },
+        },
+      ]);
+
+      const parsed = JSON.parse(result.response.text());
+      return parsed as VisionInspectionResult;
+    }
+  }
+
+  // Text or remote URL
+  const result = await model.generateContent(prompt + `\nImage reference: ${imageDataOrUrl || "N/A"}`);
+  const parsed = JSON.parse(result.response.text());
+  return parsed as VisionInspectionResult;
+}
+
+/**
+ * Tool 1: inspect_defect_vision()
+ * Primary: OpenAI GPT-4o-mini
+ * Secondary: Google Gemini 1.5 Flash
+ * Fallback: High-precision municipal heuristics (100% offline & venue reliability)
+ */
+export async function inspectDefectVision(
+  imageDataOrUrl?: string,
+  userDescription: string = ""
+): Promise<VisionInspectionResult> {
+  const openAiKey = process.env.OPENAI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
+
+  // 1. Prioritize OpenAI GPT-4o-mini
+  if (openAiKey) {
+    try {
+      const result = await callOpenAIVision(openAiKey, imageDataOrUrl, userDescription);
+      console.log("[lib/vision] Successfully inspected via OpenAI GPT-4o-mini:", result.defect_type);
+      return result;
+    } catch (err) {
+      console.warn("[lib/vision] OpenAI gpt-4o-mini call failed or timed out:", err);
+    }
+  }
+
+  // 2. Secondary: Google Gemini 1.5 Flash
+  if (geminiKey) {
+    try {
+      const result = await callGeminiVision(geminiKey, imageDataOrUrl, userDescription);
+      console.log("[lib/vision] Successfully inspected via Gemini 1.5 Flash:", result.defect_type);
+      return result;
+    } catch (err) {
+      console.warn("[lib/vision] Gemini 1.5 Flash call failed or timed out:", err);
+    }
+  }
+
+  // 3. Smart Heuristic Fallback (Guaranteeing 100% offline & venue reliability)
+  console.log("[lib/vision] Utilizing local heuristic inspection engine for:", userDescription);
   return fallbackHeuristicInspection(userDescription);
 }
 
