@@ -1,0 +1,321 @@
+[
+  {
+    "ticket_id": "ELM-2026-1042",
+    "township": "City of Elmina",
+    "precinct": "Elmina Green 1",
+    "coordinates": {
+      "lat": 3.2032,
+      "lng": 101.5125
+    },
+    "timestamp": "2026-10-20T09:14:00+08:00",
+    "reported_via": "whatsapp_bot",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80",
+      "text": "Longkang sumbat dekat simpang jalan Elmina Green, air dah mula melimpah naik ke jalan raya.",
+      "reporter_name": "Faizal Rahman",
+      "contact_number": "+6012-3849120"
+    },
+    "agent_analysis": {
+      "category": "DRAINAGE_AND_FLOOD_PREVENTION",
+      "defect_type": "HEAVY_SILT_AND_DEBRIS_BLOCKAGE",
+      "confidence": 0.96,
+      "severity_score": 9,
+      "priority": "CRITICAL",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "HEAVY_RAIN_FORECAST_38MM_H",
+        "rainfall_mm_per_h": 38.5,
+        "duplicate_count_50m": 3,
+        "is_primary_incident": true,
+        "child_incident_ids": ["ELM-2026-1042-C1", "ELM-2026-1042-C2"]
+      },
+      "summary_malay": "Tersumbat lumpur tebal pada pembetung saliran. Amar hujan lebat (>35mm/j) dikesan - tindakan kecemasan diambil.",
+      "summary_english": "Heavy silt and construction debris blocking main stormwater culvert. Heavy rain forecast (38.5mm/h) triggers automated escalation to CRITICAL."
+    },
+    "work_order": {
+      "work_order_id": "WO-ELM-2026-1042",
+      "contractor_id": "VND-ECO-04",
+      "contractor_name": "Selangor EcoDrain & Hydraulic Services",
+      "task_description": "High-pressure desilting and obstruction removal at Culvert D-402, Persiaran Elmina Green",
+      "estimated_materials": ["Water Jetting Machine", "Waste Suction Tanker", "Waste Disposal Skip"],
+      "estimated_labor_hours": 2.5,
+      "estimated_cost_myr": 350.0,
+      "jkr_code": "JKR-DRN-402",
+      "status": "DISPATCHED",
+      "dispatch_timestamp": "2026-10-20T09:14:04+08:00"
+    }
+  },
+  {
+    "ticket_id": "ELM-2026-1038",
+    "township": "City of Elmina",
+    "precinct": "Persiaran Mokhtar Dahari",
+    "coordinates": {
+      "lat": 3.1945,
+      "lng": 101.5123
+    },
+    "timestamp": "2026-10-20T08:42:00+08:00",
+    "reported_via": "web_portal",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80",
+      "text": "Deep pothole right after the traffic light heading towards Elmina Valley. Very dangerous for motorcyclists at night.",
+      "reporter_name": "Darren Tan",
+      "contact_number": "+6017-9201452"
+    },
+    "agent_analysis": {
+      "category": "ROAD_AND_PAVEMENT",
+      "defect_type": "ROAD_POTHOLE_HAZARD",
+      "confidence": 0.98,
+      "severity_score": 8,
+      "priority": "HIGH",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "MODERATE_RAIN_POSSIBLE",
+        "rainfall_mm_per_h": 12.0,
+        "duplicate_count_50m": 2,
+        "is_primary_incident": true,
+        "child_incident_ids": ["ELM-2026-1038-C1"]
+      },
+      "summary_malay": "Lubang jalan sedalam ~80mm di lorong kiri laluan utama. Bahaya kemalangan kepada penunggang motosikal.",
+      "summary_english": "Severe pothole hazard (~80mm depth) on arterial carriage-way. Immediate cold-mix asphalt patch required."
+    },
+    "work_order": {
+      "work_order_id": "WO-ELM-2026-1038",
+      "contractor_id": "VND-GUTHRIE-02",
+      "contractor_name": "Guthrie Paving & Civil Works",
+      "task_description": "Saw-cut edges, tack coat application and 50mm compacted asphalt premix patch",
+      "estimated_materials": ["Asphalt Premix 50mm", "Bituminous Tack Coat", "Vibratory Plate Compactor"],
+      "estimated_labor_hours": 2.0,
+      "estimated_cost_myr": 420.0,
+      "jkr_code": "JKR-RD-102",
+      "status": "DISPATCHED",
+      "dispatch_timestamp": "2026-10-20T08:42:03+08:00"
+    }
+  },
+  {
+    "ticket_id": "ELM-2026-1031",
+    "township": "City of Elmina",
+    "precinct": "Elmina Valley 2",
+    "coordinates": {
+      "lat": 3.1865,
+      "lng": 101.5192
+    },
+    "timestamp": "2026-10-20T07:15:00+08:00",
+    "reported_via": "whatsapp_bot",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=800&auto=format&fit=crop&q=80",
+      "text": "Paip bawah tanah bocor di tepi jalan Elmina Valley 2/3. Air bersih membuak laju masuk longkang.",
+      "reporter_name": "Siti Nurhaliza Bt Ahmad",
+      "contact_number": "+6019-4820199"
+    },
+    "agent_analysis": {
+      "category": "WATER_RETICULATION_AND_PLUMBING",
+      "defect_type": "BURST_RETICULATION_PIPE",
+      "confidence": 0.95,
+      "severity_score": 9,
+      "priority": "CRITICAL",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "NONE",
+        "rainfall_mm_per_h": 0.0,
+        "duplicate_count_50m": 4,
+        "is_primary_incident": true,
+        "child_incident_ids": ["ELM-2026-1031-C1", "ELM-2026-1031-C2", "ELM-2026-1031-C3"]
+      },
+      "summary_malay": "Kebocoran paip retikulasi bertekanan tinggi. Kehilangan air bersih dianggarkan 2,500 liter/jam.",
+      "summary_english": "Underground pressurized reticulation pipe burst. Estimated water loss 2,500 L/hour. Auto-clustered 4 resident reports within 40m."
+    },
+    "work_order": {
+      "work_order_id": "WO-ELM-2026-1031",
+      "contractor_id": "VND-AIRSEL-01",
+      "contractor_name": "Air Selangor Panel Specialist (Zone Elmina)",
+      "task_description": "Emergency excavation, localized isolation and SS304 mechanical clamp repair",
+      "estimated_materials": ["SS304 Pipe Repair Clamp 150mm", "Backfill Sand Bedding", "Safety Barrier Set"],
+      "estimated_labor_hours": 4.0,
+      "estimated_cost_myr": 650.0,
+      "jkr_code": "JKR-WTR-301",
+      "status": "DISPATCHED",
+      "dispatch_timestamp": "2026-10-20T07:15:03+08:00"
+    }
+  },
+  {
+    "ticket_id": "ELM-2026-1025",
+    "township": "City of Elmina",
+    "precinct": "Elmina Central Park",
+    "coordinates": {
+      "lat": 3.1992,
+      "lng": 101.5054
+    },
+    "timestamp": "2026-10-19T20:30:00+08:00",
+    "reported_via": "web_portal",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&auto=format&fit=crop&q=80",
+      "text": "Lampu tiang gelap berdekatan trek basikal Central Park. Kawasan jadi sangat gelap untuk yang berjoging waktu malam.",
+      "reporter_name": "Vicky Kumar",
+      "contact_number": "+6016-5532109"
+    },
+    "agent_analysis": {
+      "category": "STREETLIGHTING_AND_ELECTRICAL",
+      "defect_type": "NON_FUNCTIONAL_STREETLIGHT",
+      "confidence": 0.94,
+      "severity_score": 6,
+      "priority": "MEDIUM",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "NONE",
+        "rainfall_mm_per_h": 0.0,
+        "duplicate_count_50m": 1,
+        "is_primary_incident": true
+      },
+      "summary_malay": "Lampu jalan LED padam di kawasan rekreasi trek berbasikal. Penggantian kepala lampu & sensor fotosel diperlukan.",
+      "summary_english": "Streetlight luminaire failure along jogging path. Photocell sensor replacement scheduled."
+    },
+    "work_order": {
+      "work_order_id": "WO-ELM-2026-1025",
+      "contractor_id": "VND-TENAGA-03",
+      "contractor_name": "Tenaga Elmina Engineering",
+      "task_description": "Testing supply circuit, replacement of 120W LED IP66 luminaire and NEMA photocell",
+      "estimated_materials": ["120W LED IP66 Luminaire Head", "NEMA Photocell Sensor", "Sky-lift Crane Truck"],
+      "estimated_labor_hours": 1.5,
+      "estimated_cost_myr": 280.0,
+      "jkr_code": "JKR-EL-201",
+      "status": "DRAFTED",
+      "dispatch_timestamp": "2026-10-19T20:30:05+08:00"
+    }
+  },
+  {
+    "ticket_id": "ELM-2026-1019",
+    "township": "City of Elmina",
+    "precinct": "Elmina Central Park",
+    "coordinates": {
+      "lat": 3.1978,
+      "lng": 101.5072
+    },
+    "timestamp": "2026-10-19T17:10:00+08:00",
+    "reported_via": "whatsapp_bot",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80",
+      "text": "Dahan pokok patah melintang halang laluan pejalan kaki berhampiran tasik Elmina.",
+      "reporter_name": "Jason Lee",
+      "contact_number": "+6011-2098411"
+    },
+    "agent_analysis": {
+      "category": "LANDSCAPING_AND_PARKS",
+      "defect_type": "FALLEN_TREE_BRANCH_OBSTRUCTION",
+      "confidence": 0.97,
+      "severity_score": 7,
+      "priority": "HIGH",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "STRONG_WIND_ADVISORY",
+        "rainfall_mm_per_h": 5.0,
+        "duplicate_count_50m": 1,
+        "is_primary_incident": true
+      },
+      "summary_malay": "Dahan pokok besar patah menghalang laluan pejalan kaki taman. Pemotongan gergaji berantai & pembersihan sisa.",
+      "summary_english": "Fallen tree limb obstructing pedestrian trail. Chainsaw sectioning and wood chipping scheduled."
+    },
+    "work_order": {
+      "work_order_id": "WO-ELM-2026-1019",
+      "contractor_id": "VND-HORTI-05",
+      "contractor_name": "Elmina Central Park Horticultural Care",
+      "task_description": "Chainsaw sectioning of fallen limb, wood chipping and clearance of walkway",
+      "estimated_materials": ["Heavy Duty Chainsaw", "Wood Chipper", "3-Ton Disposal Truck"],
+      "estimated_labor_hours": 2.0,
+      "estimated_cost_myr": 260.0,
+      "jkr_code": "JKR-LND-501",
+      "status": "RESOLVED",
+      "dispatch_timestamp": "2026-10-19T17:10:03+08:00"
+    }
+  },
+  {
+    "ticket_id": "BBR-2026-2001",
+    "township": "Bandar Bukit Raja",
+    "precinct": "Gateway 16 Industrial Park",
+    "coordinates": {
+      "lat": 3.0855,
+      "lng": 101.4425
+    },
+    "timestamp": "2026-10-20T08:15:00+08:00",
+    "reported_via": "whatsapp_bot",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80",
+      "text": "Severe road rutting and sunken asphalt along Persiaran Bukit Raja 1 due to heavy container truck traffic.",
+      "reporter_name": "Muthusamy",
+      "contact_number": "+6012-7718902"
+    },
+    "agent_analysis": {
+      "category": "ROAD_AND_PAVEMENT",
+      "defect_type": "ROAD_POTHOLE_HAZARD",
+      "confidence": 0.97,
+      "severity_score": 9,
+      "priority": "HIGH",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "NORMAL",
+        "rainfall_mm_per_h": 0.0,
+        "duplicate_count_50m": 2,
+        "is_primary_incident": true,
+        "child_incident_ids": ["BBR-2026-2001-C1"]
+      },
+      "summary_malay": "Mendapan jalan raya teruk di zon industri Gateway 16 akibat lori kontena. Penurapan asfalt kecemasan.",
+      "summary_english": "Heavy industrial carriage-way rutting near Gateway 16. Structural asphalt patching required."
+    },
+    "work_order": {
+      "work_order_id": "WO-BBR-2026-2001",
+      "contractor_id": "VND-KLANG-01",
+      "contractor_name": "Klang Valley Heavy Paving Services",
+      "task_description": "Heavy-duty mill and pave asphalt reinstatement on Persiaran Bukit Raja 1",
+      "estimated_materials": ["Dense Bituminous Macadam 60mm", "Tack Coat RS-1K", "Tandem Roller"],
+      "estimated_labor_hours": 3.5,
+      "estimated_cost_myr": 580.0,
+      "jkr_code": "JKR-RD-102",
+      "status": "DISPATCHED",
+      "dispatch_timestamp": "2026-10-20T08:15:04+08:00"
+    }
+  },
+  {
+    "ticket_id": "BBR-2026-2005",
+    "township": "Bandar Bukit Raja",
+    "precinct": "Jalan Haji Sirat",
+    "coordinates": {
+      "lat": 3.0790,
+      "lng": 101.4480
+    },
+    "timestamp": "2026-10-20T09:05:00+08:00",
+    "reported_via": "web_portal",
+    "raw_input": {
+      "image_url": "https://images.unsplash.com/photo-1542314831-c6a4d27e69c1?w=800&auto=format&fit=crop&q=80",
+      "text": "Retention pond outlet clogged with industrial mud runoff near Jalan Haji Sirat junction.",
+      "reporter_name": "Azlan Shah",
+      "contact_number": "+6019-3321908"
+    },
+    "agent_analysis": {
+      "category": "DRAINAGE_AND_FLOOD_PREVENTION",
+      "defect_type": "HEAVY_SILT_AND_DEBRIS_BLOCKAGE",
+      "confidence": 0.98,
+      "severity_score": 9,
+      "priority": "CRITICAL",
+      "is_authentic": true,
+      "contextual_factors": {
+        "weather_alert": "MONSOON_STORM_RADAR_ACTIVE",
+        "rainfall_mm_per_h": 32.0,
+        "duplicate_count_50m": 1,
+        "is_primary_incident": true
+      },
+      "summary_malay": "Saluran keluar kolam takungan tersumbat sedimen tebal berdekatan Jalan Haji Sirat. Berisiko melimpah.",
+      "summary_english": "Commercial retention pond culvert obstructed by silt runoff. Immediate suction clearance required."
+    },
+    "work_order": {
+      "work_order_id": "WO-BBR-2026-2005",
+      "contractor_id": "VND-KLANG-DRAIN-02",
+      "contractor_name": "Klang Coastal Drainage Contractors",
+      "task_description": "Desilting and suction clearance of 900mm retention pond overflow culvert",
+      "estimated_materials": ["High Pressure Water Jetter", "Industrial Sludge Pump", "Skip Bin"],
+      "estimated_labor_hours": 3.0,
+      "estimated_cost_myr": 480.0,
+      "jkr_code": "JKR-DRN-402",
+      "status": "DISPATCHED",
+      "dispatch_timestamp": "2026-10-20T09:05:03+08:00"
+    }
+  }
+]

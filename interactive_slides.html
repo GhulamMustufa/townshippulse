@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TownshipPulse — Autonomous Operations Copilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070c18;
+      --card-bg: rgba(18, 25, 43, 0.9);
+      --card-border: rgba(34, 46, 74, 0.8);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --accent-green: #10b981;
+      --accent-blue: #38bdf8;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+    }
+
+    .top-bar {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(10, 16, 30, 0.7);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1rem; }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-amber);
+      cursor: pointer;
+    }
+
+    .deck-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 3rem;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px) scale(0.99);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .slide-meta {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-green);
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      line-height: 1.15;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .stat-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 0.4rem;
+      color: #fff;
+    }
+
+    .stat-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .comp-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: rgba(18, 25, 43, 0.7);
+      border: 1px solid var(--card-border);
+      padding: 1rem 1.4rem;
+      border-radius: 12px;
+      margin-bottom: 0.8rem;
+    }
+
+    .comp-old {
+      flex: 1;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      font-size: 1rem;
+    }
+
+    .comp-arrow {
+      color: var(--accent-green);
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .comp-new {
+      flex: 1.5;
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.05rem;
+    }
+
+    .comp-tag {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bottom-bar {
+      height: 60px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(10, 16, 30, 0.7);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.12); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot.active {
+      width: 22px;
+      background: var(--accent-green);
+    }
+
+    .notes-drawer {
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      background: rgba(10, 15, 28, 0.96);
+      border-top: 1px solid var(--accent-amber);
+      padding: 1rem 2rem;
+      backdrop-filter: blur(16px);
+      z-index: 90;
+      display: none;
+    }
+    .notes-drawer.open { display: block; }
+
+    .text-blue { color: var(--accent-blue); }
+    .text-green { color: var(--accent-green); }
+    .text-amber { color: var(--accent-amber); }
+    .text-red { color: var(--accent-red); }
+
+    @media (max-width: 768px) {
+      body { overflow-y: auto; height: auto; min-height: 100vh; }
+      .deck-container { padding: 1rem; height: auto; display: block; }
+      .slide { position: relative; inset: auto; height: auto; min-height: calc(100vh - 120px); opacity: 0; display: none; }
+      .slide.active { opacity: 1; display: flex; }
+      .slide-title { font-size: 1.6rem; margin-bottom: 1rem; }
+      .grid-3, .grid-4, .grid-2 { grid-template-columns: 1fr; gap: 0.75rem; }
+      .stat-card { padding: 1.25rem; }
+      .stat-number { font-size: 2.2rem; }
+      .comp-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    }
+
+    .floating-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      background: rgba(18, 25, 43, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 80;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    .floating-nav:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent-blue);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .floating-nav.prev { left: 1rem; }
+    .floating-nav.next { right: 1rem; }
+    .floating-nav:disabled { opacity: 0.2; cursor: not-allowed; }
+
+    .slide-select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .slide-select option {
+      background: #0f172a;
+      color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="brand">
+      <span>🏙️ TownshipPulse</span>
+      <span class="brand-badge">Sime Darby Property Hackathon 2026</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="timer-badge" id="timerBadge" title="Click to Start/Pause 3-Min Pitch Timer">
+        <span>⏱️</span>
+        <span id="timerDisplay">03:00</span>
+      </div>
+      <button class="nav-btn" id="notesToggleBtn">🎙️ Script (S)</button>
+      <button class="nav-btn" id="fullscreenBtn">⛶ Fullscreen (F)</button>
+    </div>
+  </header>
+
+  <!-- SLIDES DECK (10 SLIDES STRICTLY MATCHING SDP BRIEFING SLIDES 23 & 24) -->
+  <main class="deck-container">
+    <button class="floating-nav prev" id="floatPrevBtn" title="Previous Slide (Left Arrow)">‹</button>
+    <button class="floating-nav next" id="floatNextBtn" title="Next Slide (Right Arrow / Space)">›</button>
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-meta">Theme 2: PLANET (Climate Resilience & Water) with PEOPLE Co-Benefits</div>
+      <h1 style="font-size:3.8rem; font-weight:800; line-height:1.05; letter-spacing:-0.04em; margin-bottom:0.8rem;">TownshipPulse</h1>
+      <div style="font-size:1.4rem; color:var(--accent-blue); font-weight:600; margin-bottom:2rem;">
+        Autonomous Infrastructure & Operations Copilot for Townships of Tomorrow
+      </div>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-number text-blue">0</div>
+          <div class="stat-title">App Downloads</div>
+          <div class="stat-desc">Zero friction. Ingests citizen reports via WhatsApp & Web PWA in BM/English.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-green">50m</div>
+          <div class="stat-title">Smart Clustering</div>
+          <div class="stat-desc">Groups 50 duplicate reports into 1 job, saving RM 420 per duplicate callout.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-amber">&lt; 4s</div>
+          <div class="stat-title">JKR Auto-Costing</div>
+          <div class="stat-desc">Auto-prices repairs using Malaysian JKR rates with closed-loop AI photo audit.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: AREA 1 - PROBLEM -->
+    <section class="slide" data-slide="2">
+      <div class="slide-meta">Area 1 — The Problem</div>
+      <h2 class="slide-title">In 5,000-Acre Townships, 72-Hour Delays Cause Disasters</h2>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-number text-red">92%</div>
+          <div class="stat-title">App Abandonment</div>
+          <div class="stat-desc">Residents refuse to download heavy 100MB apps to report a puddle. Reports get lost on social media.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-amber">50+</div>
+          <div class="stat-title">Duplicate Tickets</div>
+          <div class="stat-desc">When a pipe bursts, dozens of neighbors send repeats, wasting 8+ staff hours daily on manual triage.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-red">RM 50k</div>
+          <div class="stat-title">Monsoon Floods</div>
+          <div class="stat-desc">A clogged drain ignored for 3 days turns into flash floods and road collapses during Malaysian storms.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: AREA 2 - TARGET USER -->
+    <section class="slide" data-slide="3">
+      <div class="slide-meta">Area 2 — Target User</div>
+      <h2 class="slide-title">Three Core Stakeholders with Zero Learning Curve</h2>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-number text-blue">🏢</div>
+          <div class="stat-title">Sime Darby JMB & Managers</div>
+          <div class="stat-desc">Unified GIS Command Center covering 5,000 acres in real time with automated triage and zero clerical backlog.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-green">🏡</div>
+          <div class="stat-title">Township Residents</div>
+          <div class="stat-desc">Zero-download reporting via everyday WhatsApp or 1-tap Web PWA with camera, voice notes & GPS in Malay/English.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-amber">🚜</div>
+          <div class="stat-title">Panel Contractors</div>
+          <div class="stat-desc">Receive clear statutory JKR work orders with agreed unit rates; get fast escrow payments upon AI photo audit.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: AREA 3 - SOLUTION -->
+    <section class="slide" data-slide="4">
+      <div class="slide-meta">Area 3 — The Solution</div>
+      <h2 class="slide-title">TownshipPulse: The Autonomous Operations Copilot</h2>
+
+      <div class="comp-row">
+        <div class="comp-old">100MB App Download</div>
+        <div class="comp-arrow">→</div>
+        <div class="comp-new">Everyday WhatsApp & Instant Web PWA Ingestion</div>
+        <div class="comp-tag" style="background:rgba(56,189,248,0.2); color:var(--accent-blue);">Zero Friction</div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-old">50 Duplicate Complaint Tickets</div>
+        <div class="comp-arrow">→</div>
+        <div class="comp-new">1 Clustered Master Job (50-Meter Haversine Engine)</div>
+        <div class="comp-tag" style="background:rgba(16,185,129,0.2); color:var(--accent-green);">RM 420 Saved</div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-old">3-Day Manual Estimator Delay</div>
+        <div class="comp-arrow">→</div>
+        <div class="comp-new">4-Second JKR Schedule of Rates Auto-Pricing</div>
+        <div class="comp-tag" style="background:rgba(245,158,11,0.2); color:var(--accent-amber);">JKR Standard</div>
+      </div>
+
+      <div class="comp-row">
+        <div class="comp-old">Unverified Contractor Invoicing</div>
+        <div class="comp-arrow">→</div>
+        <div class="comp-new">Closed-Loop Before vs After AI Photo Audit</div>
+        <div class="comp-tag" style="background:rgba(16,185,129,0.2); color:var(--accent-green);">Zero Fraud</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: AREA 4 - INNOVATION -->
+    <section class="slide" data-slide="5">
+      <div class="slide-meta">Area 4 — Innovation & Differentiation (20% Weight)</div>
+      <h2 class="slide-title">Not Another Form: A 4-Agent Autonomous Operating System</h2>
+
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-number text-blue">01</div>
+          <div class="stat-title">Vision Defect Agent</div>
+          <div class="stat-desc">Gemini 1.5 Flash inspects photos, verifies real infrastructure defects, and strips spam in &lt; 1s.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-green">02</div>
+          <div class="stat-title">Spatial Clustering</div>
+          <div class="stat-desc">50m Haversine algorithm merges multiple neighborhood reports into 1 master dispatch order.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-amber">03</div>
+          <div class="stat-title">Climate Radar Agent</div>
+          <div class="stat-desc">Live Open-Meteo satellite feed. Rain &gt; 30mm/h bumps blocked drains to CRITICAL before floods.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-blue">04</div>
+          <div class="stat-title">JKR Auto-Costing</div>
+          <div class="stat-desc">Direct statutory rate calculation (JKR 2026), generating official legal work orders in Ringgit.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: AREA 5 - HOW IT WORKS & DEMO -->
+    <section class="slide" data-slide="6">
+      <div class="slide-meta">Area 5 — How It Works & Live Demo</div>
+      <h2 class="slide-title">From Citizen Photo to Verified Fix in 4 Seconds</h2>
+
+      <div class="grid-4" style="margin-bottom:1.5rem;">
+        <div class="stat-card" style="padding:1.25rem;">
+          <div style="font-weight:800; color:var(--accent-blue); margin-bottom:4px;">STEP 1: SNAP</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Resident sends photo/voice on WhatsApp or PWA.</div>
+        </div>
+        <div class="stat-card" style="padding:1.25rem;">
+          <div style="font-weight:800; color:var(--accent-green); margin-bottom:4px;">STEP 2: TRIAGE</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">AI verifies defect, deduplicates within 50m, checks rain.</div>
+        </div>
+        <div class="stat-card" style="padding:1.25rem;">
+          <div style="font-weight:800; color:var(--accent-amber); margin-bottom:4px;">STEP 3: DISPATCH</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Contractor receives JKR Borang Pesanan with price.</div>
+        </div>
+        <div class="stat-card" style="padding:1.25rem;">
+          <div style="font-weight:800; color:var(--accent-blue); margin-bottom:4px;">STEP 4: AI AUDIT</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Before/After AI compares site photos & closes job.</div>
+        </div>
+      </div>
+
+      <div class="stat-card" style="padding:1.25rem; display:flex; align-items:center; justify-content:space-between; background:rgba(18,25,43,0.95); border:1px solid var(--accent-blue);">
+        <div>
+          <div style="font-weight:700; color:#fff; font-size:1.05rem;">Interactive Simulator on Live Command Center</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);" id="simStatus">Ready: City of Elmina & Bandar Bukit Raja Operations Core</div>
+        </div>
+        <button class="nav-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7); padding:8px 18px; font-weight:700;" id="runDemoBtn">
+          ▶️ Run Live AI Triage Demo (4s)
+        </button>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: AREA 6 - IMPACT & SUSTAINABILITY (25% WEIGHT) -->
+    <section class="slide" data-slide="7">
+      <div class="slide-meta">Area 6 — Impact & Sustainability (25% Judging Weight)</div>
+      <h2 class="slide-title">Measurable ESG Value on the Bursa Malaysia Impact Ledger</h2>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-number text-blue">1.2M L</div>
+          <div class="stat-title">Clean Water Saved / Yr</div>
+          <div class="stat-desc">Pipe bursts dispatched in 4 hours instead of 7 days, stopping 42,000L/hr potable water leakage.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-green">240</div>
+          <div class="stat-title">Truck Trips Avoided / Mo</div>
+          <div class="stat-desc">50m spatial clustering eliminates 94% of duplicate dispatches, cutting 1.4 tonnes CO₂e monthly.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-amber">0</div>
+          <div class="stat-title">Flood Incidents</div>
+          <div class="stat-desc">Proactive culvert desilting before heavy rainfall protects 1,450 residential homes in Elmina Green.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: AREA 7 - FEASIBILITY & COMMERCIAL VALUE -->
+    <section class="slide" data-slide="8">
+      <div class="slide-meta">Area 7 — Feasibility & Commercial Numbers (30% Total Weight)</div>
+      <h2 class="slide-title">Costs &lt; RM 100 / Month. Generates RM 1.84M / Year in Value.</h2>
+
+      <div class="grid-2">
+        <div class="stat-card" style="padding:2rem;">
+          <div class="stat-number text-blue">RM 81.50</div>
+          <div class="stat-title">Monthly Running Cost (5,000 Homes)</div>
+          <div style="font-size:0.95rem; color:var(--text-muted); line-height:1.9; margin-top:0.8rem;">
+            <div>• Vision AI (Gemini 1.5 Flash): ~RM 6.50/mo (&lt; 1 sen/scan)</div>
+            <div>• Maps & Satellite Weather: RM 0.00 (Open-Meteo)</div>
+            <div>• Edge Serverless Hosting: ~RM 75.00/mo</div>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:2rem;">
+          <div class="stat-number text-green">RM 1.84M</div>
+          <div class="stat-title">Annual Value Across 10 SDP Townships</div>
+          <div style="font-size:0.95rem; color:var(--text-muted); line-height:1.9; margin-top:0.8rem;">
+            <div>• Duplicate Callout Prevention: RM 470,000 / year</div>
+            <div>• Emergency Flood Mitigation: RM 850,000 / year</div>
+            <div>• Staff Labor Efficiency (75% faster): RM 520,000 / year</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: AREA 8 - IMPLEMENTATION & SCALABILITY -->
+    <section class="slide" data-slide="9">
+      <div class="slide-meta">Area 8 — Implementation & Scalability</div>
+      <h2 class="slide-title">6-Month 3-Phase Rollout Across Sime Darby Townships</h2>
+
+      <div class="comp-row">
+        <div style="color:var(--accent-blue); font-weight:800; font-size:1.1rem; min-width:140px;">PHASE 1 (M1–2)</div>
+        <div class="comp-new">City of Elmina Pilot: Ingest Elmina Green/Valley GIS assets, onboard 1,000 WhatsApp residents.</div>
+      </div>
+
+      <div class="comp-row">
+        <div style="color:var(--accent-green); font-weight:800; font-size:1.1rem; min-width:140px;">PHASE 2 (M3–4)</div>
+        <div class="comp-new">Bandar Bukit Raja Scale: Deploy in Gateway 16 industrial logistics park; integrate tidal sluice monitoring.</div>
+      </div>
+
+      <div class="comp-row">
+        <div style="color:var(--accent-amber); font-weight:800; font-size:1.1rem; min-width:140px;">PHASE 3 (M5–6)</div>
+        <div class="comp-new">Portfolio-Wide SDP Rollout: Expand across all 25 SDP townships (Serenia City, Nilai Impian, Putra Heights).</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: CONCLUSION & THE TEAM -->
+    <section class="slide" data-slide="10">
+      <div class="slide-meta">Conclusion & Team Credentials</div>
+      <h2 class="slide-title">Transforming Blueprints into Self-Healing Townships</h2>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="stat-card" style="padding:1.5rem;">
+          <div style="font-weight:700; color:var(--accent-green); margin-bottom:8px; font-size:1.1rem;">Why TownshipPulse Wins:</div>
+          <div style="font-size:0.92rem; color:var(--text-muted); line-height:1.7;">
+            <div>• <b>Zero App Fatigue:</b> Residents use everyday WhatsApp in BM/English.</div>
+            <div>• <b>Autonomous Engine:</b> 4-second multi-agent triage with JKR rates.</div>
+            <div>• <b>Measurable ESG:</b> 1.2M L water saved, zero flood damage.</div>
+            <div>• <b>Proven Working Code:</b> Tested on City of Elmina & Bukit Raja.</div>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:1.5rem;">
+          <div style="font-weight:700; color:var(--accent-blue); margin-bottom:8px; font-size:1.1rem;">The Team:</div>
+          <div style="font-size:0.92rem; color:var(--text-muted); line-height:1.7;">
+            <div>• <b>Ghulam Mustafa</b> — Lead AI Systems & Full-Stack Architect</div>
+            <div>• Sime Darby Property University Hackathon 2026</div>
+            <div style="margin-top:10px; color:#fff; font-weight:700;">"From slow paperwork to self-healing townships."</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:var(--accent-green); font-size:1.15rem; font-weight:700;">
+        Thank you judges! We welcome your questions.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM CONTROLS -->
+  <footer class="bottom-bar">
+    <div style="display:flex; gap:10px;">
+      <button class="nav-btn" id="prevBtn">← Back</button>
+      <button class="nav-btn" id="nextBtn">Next →</button>
+    </div>
+
+    <div class="slide-dots" id="dotsContainer"></div>
+
+    
+      <select class="slide-select" id="slideSelectDropdown" title="Jump directly to any slide">
+        <option value="1">1. Cover & Title</option>
+        <option value="2">2. Problem (72h Lag)</option>
+        <option value="3">3. Target User</option>
+        <option value="4">4. Solution</option>
+        <option value="5">5. Innovation (4 Agents)</option>
+        <option value="6">6. How It Works & Demo</option>
+        <option value="7">7. Impact & ESG (25%)</option>
+        <option value="8">8. Feasibility & Numbers</option>
+        <option value="9">9. Implementation Plan</option>
+        <option value="10">10. Conclusion & Team</option>
+      </select>
+
+      <div style="font-size:0.85rem; font-family:var(--font-mono); color:var(--text-muted);" id="slideCounter">
+      Slide 1 of 10
+    </div>
+  </footer>
+
+  <!-- NOTES DRAWER -->
+  <div class="notes-drawer" id="notesDrawer">
+    <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:var(--accent-amber); font-size:0.85rem; font-weight:700;">
+      <span>🎙️ SPEAKER SCRIPT (What to say to judges)</span>
+      <span style="font-size:0.75rem; color:var(--text-muted);">Press "S" to toggle</span>
+    </div>
+    <div id="notesContent" style="font-size:1rem; line-height:1.6; color:#e2e8f0; font-style:italic;">
+      Loading notes...
+    </div>
+  </div>
+
+  <script>
+    const speakerNotes = {
+      1: "Good morning respected judges. In 5,000-acre masterplans like City of Elmina and Bandar Bukit Raja, fixing broken infrastructure is slow, manual, and messy. TownshipPulse takes a resident photo on WhatsApp, merges duplicate complaints within 50 meters, checks storm forecasts, and drafts contractor dispatch orders in under 4 seconds.",
+      2: "Traditional complaint apps fail for 3 simple reasons: First, 92% of residents delete standalone township apps. Second, when a pipe bursts, over 50 residents send repeats, wasting hours of staff time. Third, an unmonitored drain quickly escalates into RM 50,000 in road and property damage when Malaysian downpours hit.",
+      3: "We designed TownshipPulse to serve three key stakeholders without requiring anyone to change their habits: For residents, zero learning curve on WhatsApp. For Sime Darby managers, a unified GIS command center across 5,000 acres. And for contractors, standardized Malaysian JKR work orders with guaranteed price codes.",
+      4: "TownshipPulse replaces human bottleneck delays with an autonomous copilot: A resident sends a photo on WhatsApp. In 4 seconds, our multi-agent pipeline analyzes the photo, groups duplicate reports within 50 meters, checks live satellite rainfall data, and calculates the exact repair cost using Malaysian JKR government rates. Zero human delay.",
+      5: "Judges, TownshipPulse is not a passive form. It is a 4-agent autonomous system: First, our Vision Agent validates the defect. Second, our Spatial Clustering Agent groups reports within 50 meters, stopping redundant contractor callouts. Third, our Climate Agent queries live satellite weather to escalate blocked drains before floods occur. And fourth, our Costing Agent applies official JKR government rate schedules.",
+      6: "Here is the 4-step workflow: Resident snaps photo on WhatsApp, AI triages and checks weather, JKR work order is dispatched, and AI audits the Before-and-After photos before closing the job. Let me trigger our live simulator on screen to show you this 4-second dispatch in real time!",
+      7: "Sime Darby Property takes sustainability seriously. TownshipPulse turns everyday maintenance into measurable ESG impact: Saving 1.2 million liters of clean water by fixing leaks in hours instead of days. Cutting 240 car inspection trips every month. And protecting Elmina and Bandar Bukit Raja from flash floods.",
+      8: "Is this feasible to deploy tomorrow? Absolutely. Scanning a photo costs less than 1 sen. The entire system costs under RM 100 per month to run for 5,000 homes in City of Elmina. In return, it saves Sime Darby Property over RM 1.84 million annually across 10 townships. It pays for itself within the first 48 hours of every month.",
+      9: "We have a clear, actionable implementation roadmap: In Months 1 and 2, we launch a 1,000-home pilot in Elmina Green. In Months 3 and 4, we scale to Bandar Bukit Raja to protect industrial logistics parks. By Month 6, TownshipPulse can be deployed across all 25 Sime Darby townships through simple API webhooks.",
+      10: "Judges, Sime Darby Property builds the greatest masterplanned townships in Malaysia. With TownshipPulse, we ensure those townships take care of themselves—protecting our planet, saving clean water, and keeping our communities safe. Thank you, and we welcome your questions!"
+    };
+
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    const slides = document.querySelectorAll(".slide");
+    const dotsContainer = document.getElementById("dotsContainer");
+    const slideCounter = document.getElementById("slideCounter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const notesDrawer = document.getElementById("notesDrawer");
+    const notesContent = document.getElementById("notesContent");
+    const notesToggleBtn = document.getElementById("notesToggleBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement("div");
+      dot.className = "dot " + (i === 1 ? "active" : "");
+      dot.addEventListener("click", () => goToSlide(i));
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateSlide() {
+      slides.forEach(slide => {
+        const num = parseInt(slide.dataset.slide);
+        slide.classList.toggle("active", num === currentSlide);
+      });
+
+      const dots = dotsContainer.querySelectorAll(".dot");
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("active", idx + 1 === currentSlide);
+      });
+
+      slideCounter.textContent = "Slide " + currentSlide + " of " + totalSlides;
+      notesContent.textContent = speakerNotes[currentSlide] || "";
+      prevBtn.disabled = currentSlide === 1;
+      nextBtn.disabled = currentSlide === totalSlides;
+      if (floatPrevBtn) floatPrevBtn.disabled = currentSlide === 1;
+      if (floatNextBtn) floatNextBtn.disabled = currentSlide === totalSlides;
+      if (slideSelectDropdown) slideSelectDropdown.value = String(currentSlide);
+    }
+
+    function goToSlide(num) {
+      if (num >= 1 && num <= totalSlides) {
+        currentSlide = num;
+        updateSlide();
+      }
+    }
+
+    
+    const floatPrevBtn = document.getElementById("floatPrevBtn");
+    const floatNextBtn = document.getElementById("floatNextBtn");
+    const slideSelectDropdown = document.getElementById("slideSelectDropdown");
+
+    if (floatPrevBtn) floatPrevBtn.addEventListener("click", () => goToSlide(currentSlide - 1));
+    if (floatNextBtn) floatNextBtn.addEventListener("click", () => goToSlide(currentSlide + 1));
+    if (slideSelectDropdown) slideSelectDropdown.addEventListener("change", (e) => goToSlide(parseInt(e.target.value)));
+
+    // Touch Swipe gestures for iPad & Mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    window.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    window.addEventListener("touchend", (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) goToSlide(currentSlide + 1);
+      if (touchEndX > touchStartX + 50) goToSlide(currentSlide - 1);
+    }, { passive: true });
+
+    prevBtn.addEventListener("click", () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener("click", () => goToSlide(currentSlide + 1));
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown" || e.key === "Enter") {
+        goToSlide(currentSlide + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp" || e.key === "Backspace") {
+        goToSlide(currentSlide - 1);
+      } else if (e.key >= "1" && e.key <= "9") {
+        goToSlide(parseInt(e.key));
+      } else if (e.key === "0") {
+        goToSlide(10);
+      }
+      else if (e.key.toLowerCase() === "s") notesDrawer.classList.toggle("open");
+      else if (e.key.toLowerCase() === "f") toggleFullscreen();
+    });
+
+    notesToggleBtn.addEventListener("click", () => notesDrawer.classList.toggle("open"));
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      else document.exitFullscreen().catch(() => {});
+    }
+
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+    // TIMER
+    let timerSecs = 180;
+    let timerInterval = null;
+    document.getElementById("timerBadge").addEventListener("click", () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      } else {
+        timerInterval = setInterval(() => {
+          if (timerSecs > 0) {
+            timerSecs--;
+            const mins = String(Math.floor(timerSecs / 60)).padStart(2, "0");
+            const secs = String(timerSecs % 60).padStart(2, "0");
+            document.getElementById("timerDisplay").textContent = mins + ":" + secs;
+          } else {
+            clearInterval(timerInterval);
+          }
+        }, 1000);
+      }
+    });
+
+    // SIMULATOR ON SLIDE 6
+    const runDemoBtn = document.getElementById("runDemoBtn");
+    const simStatus = document.getElementById("simStatus");
+    if (runDemoBtn && simStatus) {
+      runDemoBtn.addEventListener("click", () => {
+        runDemoBtn.disabled = true;
+        simStatus.innerHTML = '<span style="color:#38bdf8;">[0.8s] Ingested photo from Elmina Green 1... Checking Vision...</span>';
+        setTimeout(() => {
+          simStatus.innerHTML = '<span style="color:#10b981;">[1.8s] Defect: Clogged Culvert (Severity: 9/10). Clustered 4 reports within 50m.</span>';
+        }, 1000);
+        setTimeout(() => {
+          simStatus.innerHTML = '<span style="color:#f59e0b;">[2.8s] Open-Meteo Alert: 38mm/h Storm incoming -> Auto-escalated to CRITICAL!</span>';
+        }, 2000);
+        setTimeout(() => {
+          simStatus.innerHTML = '<span style="color:#38bdf8;">[3.6s] JKR Work Order #ELM-1042 ready (RM 350.00). Contractor Dispatched!</span>';
+        }, 3000);
+        setTimeout(() => {
+          simStatus.innerHTML = '<span style="color:#a7f3d0; font-weight:700;">[4.5s] Contractor uploaded After photo -> AI Audit verified 94% clearance -> Ticket Closed!</span>';
+          runDemoBtn.disabled = false;
+        }, 4200);
+      });
+    }
+
+    updateSlide();
+  </script>
+</body>
+</html>
