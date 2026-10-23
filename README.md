@@ -3,7 +3,16 @@
 **Track:** Primary: **Theme 2 — PLANET (Climate Resilience & Water Conservation)** | Co-Benefit: **Theme 1 — PEOPLE (Safety & Security + Digital Living)**  
 **Pilot Townships:** City of Elmina (5,000 Acres, Shah Alam) & Bandar Bukit Raja (4,333 Acres, Klang)  
 **Lead Developer:** Ghulam Mustafa & Team  
-**Submission Deadline:** 11:59 P.M., 23 October 2026
+**Submission Deadline:** 11:59 P.M., 23 October 2026  
+
+[![Live Production](https://img.shields.io/badge/Live%20Production-townshippulse.vercel.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://townshippulse.vercel.app)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-GhulamMustufa%2Ftownshippulse-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/GhulamMustufa/townshippulse)
+[![Neon DB](https://img.shields.io/badge/Neon-Serverless%20PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech)
+
+* **🌐 Live Production Dashboard:** [https://townshippulse.vercel.app](https://townshippulse.vercel.app)
+* **📱 Mobile Ingestion Portal:** [https://townshippulse.vercel.app/report](https://townshippulse.vercel.app/report)
+* **📊 10-Slide Interactive Presentation:** [https://townshippulse.vercel.app/interactive_slides.html](https://townshippulse.vercel.app/interactive_slides.html)
+* **🐙 Public GitHub Repository:** [https://github.com/GhulamMustufa/townshippulse](https://github.com/GhulamMustufa/townshippulse)
 
 ---
 
