@@ -142,6 +142,7 @@ export default function ResidentReportPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const baseTextRef = useRef<string>("");
 
   // REAL CAMERA INPUT REF
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -152,23 +153,28 @@ export default function ResidentReportPage() {
 
   useEffect(() => {
     // Check for Web Speech API support
+    let recog: any = null;
     if (typeof window !== "undefined") {
       const SpeechRecognition =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         setSpeechSupported(true);
-        const recog = new SpeechRecognition();
+        recog = new SpeechRecognition();
         recog.continuous = true;
-        recog.interimResults = true;
-        recog.lang = lang === "BM" ? "ms-MY" : "en-US"; // Dynamic BM / EN speech recognition
+        recog.interimResults = false;
+        recog.lang = lang === "BM" ? "ms-MY" : "en-US";
 
         recog.onresult = (event: any) => {
-          let transcript = "";
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
+          let sessionTranscript = "";
+          for (let i = 0; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              sessionTranscript += event.results[i][0].transcript + " ";
+            }
           }
-          if (transcript) {
-            setDescription((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          const cleanedSession = sessionTranscript.trim();
+          if (cleanedSession) {
+            const base = baseTextRef.current;
+            setDescription(base ? `${base} ${cleanedSession}` : cleanedSession);
           }
         };
 
@@ -184,6 +190,14 @@ export default function ResidentReportPage() {
         recognitionRef.current = recog;
       }
     }
+
+    return () => {
+      if (recog) {
+        try {
+          recog.abort();
+        } catch (_) {}
+      }
+    };
   }, [lang]);
 
   const toggleRecording = () => {
@@ -193,10 +207,15 @@ export default function ResidentReportPage() {
     }
 
     if (isRecording) {
-      recognitionRef.current?.stop();
+      try {
+        recognitionRef.current?.stop();
+      } catch (err) {
+        console.error(err);
+      }
       setIsRecording(false);
     } else {
       try {
+        baseTextRef.current = description ? description.trim() : "";
         recognitionRef.current?.start();
         setIsRecording(true);
       } catch (err) {

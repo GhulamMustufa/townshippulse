@@ -145,16 +145,19 @@ export default function OperationsCommandCenter() {
     };
   }, [soundEnabled]);
 
+  const ticketHandledRef = useRef<string | null>(null);
+
   // AUTO-SELECT INCIDENT WHEN REDIRECTED FROM /report (?ticket=ID)
   useEffect(() => {
     if (typeof window !== "undefined" && incidents.length > 0) {
       const params = new URLSearchParams(window.location.search);
       const ticketParam = params.get("ticket");
-      if (ticketParam) {
+      if (ticketParam && ticketHandledRef.current !== ticketParam) {
         const found = incidents.find(
           (i) => i.ticket_id === ticketParam || i.work_order?.work_order_id === ticketParam
         );
         if (found) {
+          ticketHandledRef.current = ticketParam;
           setSelectedIncident(found);
           setModalIncident(found);
           if (found.township === "Bandar Bukit Raja") {
@@ -371,7 +374,16 @@ export default function OperationsCommandCenter() {
       {modalIncident && (
         <WorkOrderModal
           incident={modalIncident}
-          onClose={() => setModalIncident(null)}
+          onClose={() => {
+            setModalIncident(null);
+            if (typeof window !== "undefined") {
+              const url = new URL(window.location.href);
+              if (url.searchParams.has("ticket")) {
+                url.searchParams.delete("ticket");
+                window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+              }
+            }
+          }}
           onStatusUpdate={handleStatusUpdate}
         />
       )}
