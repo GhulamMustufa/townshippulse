@@ -121,10 +121,27 @@ const PRESET_SCENARIOS_EN: PresetScenario[] = [
   },
 ];
 
+const PRECINCT_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  "Elmina Green 1": { lat: 3.2032, lng: 101.5125 },
+  "Elmina Green 2": { lat: 3.2045, lng: 101.5140 },
+  "Elmina Valley 1": { lat: 3.1890, lng: 101.5180 },
+  "Elmina Valley 2": { lat: 3.1865, lng: 101.5192 },
+  "Elmina Central Park": { lat: 3.1992, lng: 101.5054 },
+  "Persiaran Mokhtar Dahari": { lat: 3.1945, lng: 101.5123 },
+  "Bandar Bukit Raja": { lat: 3.0738, lng: 101.4428 },
+};
+
 export default function ResidentReportPage() {
   const [lang, setLang] = useState<"BM" | "EN">("BM");
   const [precinct, setPrecinct] = useState("Elmina Green 1");
   const [coords, setCoords] = useState({ lat: 3.2032, lng: 101.5125 });
+
+  const handlePrecinctChange = (newPrecinct: string) => {
+    setPrecinct(newPrecinct);
+    if (PRECINCT_COORDINATES[newPrecinct]) {
+      setCoords(PRECINCT_COORDINATES[newPrecinct]);
+    }
+  };
   const [description, setDescription] = useState(
     "Longkang besar sumbat dekat simpang Elmina Green 1, air dah mula melimpah naik ke jalan raya."
   );
@@ -610,7 +627,7 @@ export default function ResidentReportPage() {
 
                 <select
                   value={precinct}
-                  onChange={(e) => setPrecinct(e.target.value)}
+                  onChange={(e) => handlePrecinctChange(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
                 >
                   <option value="Elmina Green 1">Elmina Green 1</option>
