@@ -22,6 +22,7 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Clock,
+  X,
 } from "lucide-react";
 
 interface PresetScenario {
@@ -168,6 +169,46 @@ export default function ResidentReportPage() {
 
   const presets = lang === "BM" ? PRESET_SCENARIOS_BM : PRESET_SCENARIOS_EN;
 
+// Clean consecutive duplicated words or phrases emitted by browser speech recognition
+function deduplicatePhrases(text: string): string {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  if (words.length <= 1) return text.trim();
+
+  let result = [...words];
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+    const maxLen = Math.floor(result.length / 2);
+    for (let len = maxLen; len >= 1; len--) {
+      for (let i = 0; i <= result.length - 2 * len; i++) {
+        let match = true;
+        for (let j = 0; j < len; j++) {
+          if (result[i + j].toLowerCase() !== result[i + len + j].toLowerCase()) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          // If len === 1, keep valid 2-word reduplications like "sama sama" or "jalan jalan", but remove 3+
+          if (len === 1) {
+            const isTriple =
+              i + 2 < result.length && result[i].toLowerCase() === result[i + 2].toLowerCase();
+            if (!isTriple) continue;
+          }
+          result.splice(i + len, len);
+          changed = true;
+          break;
+        }
+      }
+      if (changed) break;
+    }
+  }
+
+  return result.join(" ");
+}
+
   useEffect(() => {
     // Check for Web Speech API support
     let recog: any = null;
@@ -182,16 +223,38 @@ export default function ResidentReportPage() {
         recog.lang = lang === "BM" ? "ms-MY" : "en-US";
 
         recog.onresult = (event: any) => {
-          let sessionTranscript = "";
+          const finalizedChunks: string[] = [];
           for (let i = 0; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-              sessionTranscript += event.results[i][0].transcript + " ";
+              const chunk = event.results[i][0]?.transcript?.trim();
+              if (!chunk) continue;
+              // Skip if this chunk is identical to the immediately preceding chunk
+              if (
+                finalizedChunks.length > 0 &&
+                finalizedChunks[finalizedChunks.length - 1].toLowerCase() === chunk.toLowerCase()
+              ) {
+                continue;
+              }
+              finalizedChunks.push(chunk);
             }
           }
-          const cleanedSession = sessionTranscript.trim();
+
+          const rawSpoken = finalizedChunks.join(" ");
+          const cleanedSession = deduplicatePhrases(rawSpoken);
+
           if (cleanedSession) {
             const base = baseTextRef.current;
-            setDescription(base ? `${base} ${cleanedSession}` : cleanedSession);
+            let combined = "";
+            if (!base) {
+              combined = cleanedSession;
+            } else if (base.toLowerCase().endsWith(cleanedSession.toLowerCase())) {
+              combined = base;
+            } else if (cleanedSession.toLowerCase().startsWith(base.toLowerCase())) {
+              combined = cleanedSession;
+            } else {
+              combined = `${base} ${cleanedSession}`;
+            }
+            setDescription(deduplicatePhrases(combined));
           }
         };
 
@@ -232,11 +295,21 @@ export default function ResidentReportPage() {
       setIsRecording(false);
     } else {
       try {
-        baseTextRef.current = description ? description.trim() : "";
+        // If current description matches any demo preset, start recording with a fresh slate
+        const isPreset =
+          PRESET_SCENARIOS_BM.some((p) => p.text === description) ||
+          PRESET_SCENARIOS_EN.some((p) => p.text === description);
+
+        const initialBase = isPreset ? "" : (description ? description.trim() : "");
+        baseTextRef.current = initialBase;
+        if (isPreset) {
+          setDescription("");
+        }
+
         recognitionRef.current?.start();
         setIsRecording(true);
       } catch (err) {
-        console.error(err);
+        console.error("Speech recognition start error:", err);
       }
     }
   };
@@ -383,7 +456,22 @@ export default function ResidentReportPage() {
              CLEAN DEDICATED CONFIRMATION SCREEN (REPLACES FORM)
              Zero Clutter • Consumer Simplicity (Grab/Uber Style)
              ========================================================= */
-          <div className="bg-slate-900/90 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-emerald-500/10 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="relative bg-slate-900/90 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-emerald-500/10 space-y-5 animate-in zoom-in-95 duration-200">
+            {/* CLOSE BUTTON */}
+            <button
+              type="button"
+              onClick={() => {
+                setResult(null);
+                setDescription("");
+                setImagePreview("");
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+              aria-label="Close"
+              title={lang === "BM" ? "Tutup" : "Close"}
+            >
+              <X className="w-4 h-4" />
+            </button>
+
             {/* SUCCESS ICON & TITLE */}
             <div className="text-center space-y-2">
               <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/20 animate-in bounce-in duration-300">

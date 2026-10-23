@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { IncidentTicket } from "@/types/incident";
 import { ESGImpactMetrics } from "@/lib/incident-store";
@@ -36,6 +37,7 @@ const TownshipMap = dynamic(() => import("@/components/TownshipMap"), {
 });
 
 export default function OperationsCommandCenter() {
+  const router = useRouter();
   const [incidents, setIncidents] = useState<IncidentTicket[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<IncidentTicket | null>(null);
   const [modalIncident, setModalIncident] = useState<IncidentTicket | null>(null);
@@ -146,13 +148,18 @@ export default function OperationsCommandCenter() {
   }, [soundEnabled]);
 
   const ticketHandledRef = useRef<string | null>(null);
+  const dismissedTicketsRef = useRef<Set<string>>(new Set());
 
   // AUTO-SELECT INCIDENT WHEN REDIRECTED FROM /report (?ticket=ID)
   useEffect(() => {
     if (typeof window !== "undefined" && incidents.length > 0) {
       const params = new URLSearchParams(window.location.search);
       const ticketParam = params.get("ticket");
-      if (ticketParam && ticketHandledRef.current !== ticketParam) {
+      if (
+        ticketParam &&
+        ticketHandledRef.current !== ticketParam &&
+        !dismissedTicketsRef.current.has(ticketParam)
+      ) {
         const found = incidents.find(
           (i) => i.ticket_id === ticketParam || i.work_order?.work_order_id === ticketParam
         );
@@ -171,6 +178,11 @@ export default function OperationsCommandCenter() {
   }, [incidents]);
 
   const handleSelectIncident = (inc: IncidentTicket) => {
+    // If the user deliberately clicked an incident on the feed or map, clear any dismissal
+    dismissedTicketsRef.current.delete(inc.ticket_id);
+    if (inc.work_order?.work_order_id) {
+      dismissedTicketsRef.current.delete(inc.work_order.work_order_id);
+    }
     setSelectedIncident(inc);
     setModalIncident(inc);
   };
@@ -375,14 +387,26 @@ export default function OperationsCommandCenter() {
         <WorkOrderModal
           incident={modalIncident}
           onClose={() => {
+            const currentTicketId = modalIncident.ticket_id;
+            const currentWoId = modalIncident.work_order?.work_order_id;
+            if (currentTicketId) dismissedTicketsRef.current.add(currentTicketId);
+            if (currentWoId) dismissedTicketsRef.current.add(currentWoId);
+
             setModalIncident(null);
+            setSelectedIncident(null);
+
             if (typeof window !== "undefined") {
               const url = new URL(window.location.href);
+              const ticketVal = url.searchParams.get("ticket");
+              if (ticketVal) dismissedTicketsRef.current.add(ticketVal);
               if (url.searchParams.has("ticket")) {
                 url.searchParams.delete("ticket");
                 window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
               }
             }
+            try {
+              router.replace("/", { scroll: false });
+            } catch (_) {}
           }}
           onStatusUpdate={handleStatusUpdate}
         />
